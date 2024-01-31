@@ -27,6 +27,40 @@ export interface Env {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return new Response('Hello World!');
+		const url = new URL(request.url);
+
+		return new Response(`
+		<html>
+			<head>
+			  <meta charset="utf-8" />
+				<meta property="og:site_name" content="${escapeHTML(url.searchParams.get('name'))}" />
+				<meta property="og:title" content="${url.searchParams.get('id')}" />
+				<meta property="og:image" content="https://q1.qlogo.cn/g?b=qq&nk=${url.searchParams.get('id')}&s=0" />
+			</head>
+		</html>
+		`, {
+			headers: {
+				'content-type': 'text/html;charset=UTF-8',
+			},
+		});
 	},
 };
+
+function escapeHTML(str: string) {
+  return str.replace(/[&<>"']/g, function(match) {
+    switch (match) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#39;'; // 或者使用 '&apos;'，但请注意兼容性
+      default:
+        return match;
+    }
+  });
+}
